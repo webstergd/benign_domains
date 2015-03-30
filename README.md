@@ -1,2 +1,2 @@
-# go_alexa
-Script to download Alexia Domains through the API
+# benign_domains
+Benign_domains is a simple script that creates a list of benign domains. It is written in GO and provides an option to push domains into CRITs.
