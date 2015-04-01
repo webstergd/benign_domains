@@ -95,11 +95,10 @@ def main():
     cfg.read('benign.cfg')
 
     # Set up logging functionality
-    if cfg['benign'].getboolean('logging', fallback=True):
-        logfile = cfg['logging'].get('filename', fallback='benign.log')
-        level = cfg['logging'].get('level', fallback='INFO').upper()
-        logging.basicConfig(filename=logfile, level=level)
-        print("Writing to log file {0} at level {1}.".format(logfile, level))
+    logfile = cfg['logging'].get('filename', fallback='benign.log')
+    level = cfg['logging'].get('level', fallback='INFO').upper()
+    logging.basicConfig(filename=logfile, level=level)
+    print("Writing to log file {0} at level {1}.".format(logfile, level))
 
     if cfg['benign'].getboolean('checkVirustotal', fallback=False):
         print("Checking domains against VirusTotal for validity")
