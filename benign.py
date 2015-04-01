@@ -26,15 +26,16 @@
 # SOFTWARE.
 #################################################################################
 
-import requests
 import argparse
 import configparser
+import requests
+import logging
 
 def submit_crits(domain):
     headers = {'User-agent': 'benign_domains'}
 
     # submit domain
-    url = "{0}/api/v1/domains/".format(cfg.get('Maltrieve', 'crits')) 
+    url = "{0}/api/v1/domains/".format(cfg.get('crits', 'url')) 
     domain_data = {
         'api_key': cfg.crits_key,
         'username': cfg.crits_user,
@@ -53,20 +54,38 @@ def submit_crits(domain):
     except:
         logging.info("Exception caught from Crits when submitting domain")
 
+def scan_virustotal(domain):
+    pass
 
 def main():
-	cfg = configparser.ConfigParser()
-	cfg.read('benign.cfg')
+    print("Starting up benign_domain parsing script!!!")
 
-	if cfg['benign'].getboolean('outputFile', fallback=False):
-		print "output file"
+    # Read configuration file
+    cfg = configparser.ConfigParser()
+    cfg.read('benign.cfg')
 
-	if cfg['benign'].getboolean('submitToCrits', fallback=False):
-		print "submit to CRITs"
+    # Set up logging functionality
+    if cfg['benign'].getboolean('logging', fallback=True):
+        logfile = cfg['logging'].get('filename', fallback='benign.log')
+        level = cfg['logging'].get('level', fallback='INFO').upper()
+        logging.basicConfig(filename=logfile, level=level)
+        print("Writing to log file {0} at level {1}.".format(logfile, level))
 
+    if cfg['benign'].getboolean('checkVirustotal', fallback=False):
+        print("Checking domains against VirusTotal for validity")
+
+    if cfg['benign'].getboolean('outputFile', fallback=True):
+        outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
+        print("Saving output to file {0}.".format(outputFile))
+
+    if cfg['benign'].getboolean('submitToCrits', fallback=False):
+        url = cfg['crits'].get('url', '')
+        username = cfg['crits'].get('user', '')
+        source = cfg['crits'].get('source', '')
+        print("Submitting domains to CRITs at: \n\tURL: {0}\n\tUser: {1}\n\tSource: {2}".format(url, username, source))
 
 if __name__ == "__main__":
-	try:
-		main()
+    try:
+        main()
     except KeyboardInterrupt:
         sys.exit()
