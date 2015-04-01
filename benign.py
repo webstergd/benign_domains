@@ -28,8 +28,11 @@
 
 import argparse
 import configparser
-import requests
+import csv
+#import requests
 import logging
+
+from collections import namedtuple
 
 def submit_crits(domain):
     """ Submits domain to CRITs """
@@ -87,6 +90,7 @@ def check_virustotal(domain, cfg):
     return False
 
 
+
 def main():
     print("Starting up benign_domain parsing script!!!")
 
@@ -100,16 +104,48 @@ def main():
     logging.basicConfig(filename=logfile, level=level)
     print("Writing to log file {0} at level {1}.".format(logfile, level))
 
+
+    ###
+    #Check to see if input file is available
+    ###
+    inputFile = cfg['inputFile'].get('majestic', fallback='majestic_million.csv')
+    print("Opening input file {0}.".format(inputFile))
+
+    count = 0 
+
+    with open(inputFile) as infile:
+    	f_csv = csv.reader(infile)
+    	headings = next(f_csv)
+    	Row = namedtuple('Row', headings)
+    	for r in f_csv:
+    		if count == 10:
+    			break
+    		row = Row(*r)
+    		
+    		
+
+
+    		print(row.Domain)
+    		count = count + 1
+
+
+
+
+
+
+
+    if cfg['benign'].getboolean('outputFile', fallback=True):
+        outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
+        print("Saving output to file {0}.".format(outputFile))
+        #with open(outputFile, 'wt') as f:
+        #	print("", file=f)
+
     if cfg['benign'].getboolean('checkVirustotal', fallback=False):
         print("Checking domains against VirusTotal for validity")
         if check_virustotal('google.com', cfg):
             print('awesome')
         else:
             print('not so awesome')
-
-    if cfg['benign'].getboolean('outputFile', fallback=True):
-        outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
-        print("Saving output to file {0}.".format(outputFile))
 
     if cfg['benign'].getboolean('submitToCrits', fallback=False):
         url = cfg['crits'].get('url', '')
