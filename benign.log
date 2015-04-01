@@ -1,0 +1,4 @@
+INFO:urllib3.connectionpool:Starting new HTTPS connection (1): www.virustotal.com
+DEBUG:urllib3.connectionpool:Setting read timeout to None
+DEBUG:urllib3.connectionpool:"GET /vtapi/v2/domain/report?allinfo=1&domain=google.com&apikey=592d5f6cfb52135f48e9f2a9720631f7e3023efe8bad8b18961fb7af480e76c0 HTTP/1.1" 200 None
+INFO:root:Submitted domain google.com to VirusTotal for verification, response was Domain found in dataset

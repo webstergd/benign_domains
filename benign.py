@@ -32,30 +32,60 @@ import requests
 import logging
 
 def submit_crits(domain):
+    """ Submits domain to CRITs """
     headers = {'User-agent': 'benign_domains'}
 
     # submit domain
-    url = "{0}/api/v1/domains/".format(cfg.get('crits', 'url')) 
-    domain_data = {
-        'api_key': cfg.crits_key,
-        'username': cfg.crits_user,
-        'source': cfg.crits_source,
+    url = "{0}/api/v1/domains/".format(cfg['crits'].get('url')) 
+    params = {
+        'api_key': cfg['crits'].get('key'),
+        'username': cfg['crits'].get('user'),
+        'source': cfg['crits'].get('source'),
         'domain': domain
     }
     try:
-        # Note that this request does NOT go through proxies
-        domain_response = requests.post(url, headers=headers, data=domain_data, verify=False)
-        if domain_response.status_code == requests.codes.ok:
-            domain_response_data = domain_response.json()
-            logging.info("Submitted domain info for %s to Crits, response was %s" % (md5,
-                         domain_response_data["message"]))
-            if domain_response_data['return_code'] == 0: 
+        response = requests.post(url, headers=headers, data=params, verify=False)
+        if response.status_code == requests.codes.ok:
+            response_json = response.json()
+            logging.info("Submitted domain info for {0} to Crits, response was {1}".format(md5,
+                         response_json["message"]))
+            if response_json['return_code'] == 0: 
                 inserted_domain = True
     except:
         logging.info("Exception caught from Crits when submitting domain")
 
-def scan_virustotal(domain):
-    pass
+
+def check_virustotal(domain, cfg):
+    """ Checks VirusTotal to see if the domain is malicious """
+
+    url = 'https://www.virustotal.com/vtapi/v2/domain/report'
+    params = {'domain': domain, 
+              'apikey': cfg['virustotal'].get('key'),
+              'allinfo': 1}
+    try:
+        response = requests.get(url, params=params)
+
+        if response.status_code == requests.codes.ok:
+            response_json = response.json()
+            logging.info("Submitted domain {0} to VirusTotal for verification, response was {1}".format(domain,
+                         response_json["verbose_msg"]))
+            if response_json['response_code'] == 0:
+                logging.info("VT: Has not seen {0} before, assuming domain is benign".format(domain))
+                return True
+            elif response_json['response_code'] == -1:
+                logging.debug("VT: Reporting that domain {0} is malformed, assuming malicious".format(domain))
+                return False
+            elif response_json['response_code'] == 1:
+                # Need to check a few things and then decide if it is really malicious.
+                # probably Alexa domain info, Alexa category, Webutation domain info:Verdict, and maybe categories
+                # For now just return True
+                logging.info("VT: category is {0}".format(response_json['categories']))
+                return True
+    except:
+        logging.debug("Exception caught from VirusTotal when receiving report")
+        
+    return False
+
 
 def main():
     print("Starting up benign_domain parsing script!!!")
@@ -73,6 +103,10 @@ def main():
 
     if cfg['benign'].getboolean('checkVirustotal', fallback=False):
         print("Checking domains against VirusTotal for validity")
+        if check_virustotal('google.com', cfg):
+            print('awesome')
+        else:
+            print('not so awesome')
 
     if cfg['benign'].getboolean('outputFile', fallback=True):
         outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
@@ -83,6 +117,7 @@ def main():
         username = cfg['crits'].get('user', '')
         source = cfg['crits'].get('source', '')
         print("Submitting domains to CRITs at: \n\tURL: {0}\n\tUser: {1}\n\tSource: {2}".format(url, username, source))
+
 
 if __name__ == "__main__":
     try:
