@@ -136,7 +136,8 @@ def main():
                 outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
                 logging.info("Writing domain {0} to file {1}".format(row.Domain, outputFile))
                 with open(outputFile, 'at') as f:
-                   print(row.Domain, file=f)
+                   f.write(row.Domain + "\n")
+                   #print(row.Domain, file=f)
 
             if cfg['benign'].getboolean('submitToCrits', fallback=False):
                 submit_crits(row.Domain)
