@@ -53,7 +53,7 @@ def submit_crits(domain):
         if response.status_code == requests.codes.ok:
             response_json = response.json()
             logging.info("Submitted domain info for {0} to Crits, response was {1}".format(md5,
-                         response_json["message"]))
+                         response_json.get('message', '')))
             if response_json['return_code'] == 0: 
                 inserted_domain = True
     except:
@@ -73,7 +73,7 @@ def check_virustotal(domain, cfg):
         if response.status_code == requests.codes.ok:
             response_json = response.json()
             logging.info("Submitted domain {0} to VirusTotal for verification, response was {1}".format(domain,
-                         response_json["verbose_msg"]))
+                         response_json('verbose_msg', '')))
             if response_json['response_code'] == 0:
                 logging.info("VT: Has not seen {0} before, assuming domain is benign".format(domain))
                 return True
@@ -84,7 +84,9 @@ def check_virustotal(domain, cfg):
                 # Need to check a few things and then decide if it is really malicious.
                 # probably Alexa domain info, Alexa category, Webutation domain info:Verdict, and maybe categories
                 # For now just return True
-                logging.info("VT: category is {0}".format(response_json['categories']))
+                logging.info("VT: Category is: {0}".format(response_json.get('categories', ''))
+                logging.info("VT: Webutation verdict is: {0}".format(response_json.get('Webutation domain info', ''))
+                logging.info("VT: TrendMicro verdict is: {0}".format(response_json.get('TrendMicro category', ''))
                 return True
     except:
         logging.debug("Exception caught from VirusTotal when receiving report")
@@ -93,6 +95,7 @@ def check_virustotal(domain, cfg):
 
 
 def main():
+    """ Main logic for program """
     print("Starting up benign_domain parsing script!!!")
 
     # Read configuration file
