@@ -26,7 +26,6 @@
 # SOFTWARE.
 #################################################################################
 
-import argparse
 import configparser
 import csv
 import logging
@@ -63,6 +62,8 @@ def submit_crits(domain):
 def check_virustotal(domain, cfg):
     """ Checks VirusTotal to see if the domain is malicious """
 
+    print(domain)
+
     url = 'https://www.virustotal.com/vtapi/v2/domain/report'
     params = {'domain': domain, 
               'apikey': cfg['virustotal'].get('key'),
@@ -73,7 +74,7 @@ def check_virustotal(domain, cfg):
         if response.status_code == requests.codes.ok:
             response_json = response.json()
             logging.info("Submitted domain {0} to VirusTotal for verification, response was {1}".format(domain,
-                         response_json('verbose_msg', '')))
+                         response_json.get('verbose_msg', '')))
             if response_json['response_code'] == 0:
                 logging.info("VT: Has not seen {0} before, assuming domain is benign".format(domain))
                 return True
@@ -84,9 +85,9 @@ def check_virustotal(domain, cfg):
                 # Need to check a few things and then decide if it is really malicious.
                 # probably Alexa domain info, Alexa category, Webutation domain info:Verdict, and maybe categories
                 # For now just return True
-                logging.info("VT: Category is: {0}".format(response_json.get('categories', ''))
-                logging.info("VT: Webutation verdict is: {0}".format(response_json.get('Webutation domain info', ''))
-                logging.info("VT: TrendMicro verdict is: {0}".format(response_json.get('TrendMicro category', ''))
+                logging.info("VT: Category is: {0}".format(response_json.get('categories', '')))
+                logging.info("VT: Webutation verdict is: {0}".format(response_json.get('Webutation domain info', '')))
+                logging.info("VT: TrendMicro verdict is: {0}".format(response_json.get('TrendMicro category', '')))
                 return True
     except:
         logging.debug("Exception caught from VirusTotal when receiving report")
