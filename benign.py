@@ -35,7 +35,7 @@ import time
 
 from collections import namedtuple
 
-def submit_crits(domain):
+def submit_crits(domain, cfg):
     """ Submits domain to CRITs """
     headers = {'User-agent': 'benign_domains'}
 
@@ -51,19 +51,14 @@ def submit_crits(domain):
         response = requests.post(url, headers=headers, data=params, verify=False)
         if response.status_code == requests.codes.ok:
             response_json = response.json()
-            logging.info("Submitted domain info for {0} to Crits, response was {1}".format(md5,
+            logging.info("Submitted domain info for {0} to Crits, response was {1}".format(domain,
                          response_json.get('message', '')))
-            if response_json['return_code'] == 0: 
-                inserted_domain = True
     except:
-        logging.info("Exception caught from Crits when submitting domain")
+        logging.info("Exception caught from Crits when submitting domain {0}".format(domain))
 
 
 def check_virustotal(domain, cfg):
     """ Checks VirusTotal to see if the domain is malicious """
-
-    print(domain)
-
     url = 'https://www.virustotal.com/vtapi/v2/domain/report'
     params = {'domain': domain, 
               'apikey': cfg['virustotal'].get('key'),
@@ -144,7 +139,7 @@ def main():
                    #print(row.Domain, file=f)
 
             if cfg['benign'].getboolean('submitToCrits', fallback=False):
-                submit_crits(row.Domain)
+                submit_crits(row.Domain, cfg)
 
             count = count + 1
             time.sleep(float(cfg['benign'].get('wait', fallback='1.0')))
