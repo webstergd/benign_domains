@@ -2,3 +2,34 @@ INFO:urllib3.connectionpool:Starting new HTTPS connection (1): www.virustotal.co
 DEBUG:urllib3.connectionpool:Setting read timeout to None
 DEBUG:urllib3.connectionpool:"GET /vtapi/v2/domain/report?allinfo=1&domain=google.com&apikey=592d5f6cfb52135f48e9f2a9720631f7e3023efe8bad8b18961fb7af480e76c0 HTTP/1.1" 200 None
 INFO:root:Submitted domain google.com to VirusTotal for verification, response was Domain found in dataset
+INFO:root:Writing domain facebook.com to file benign.domains
+INFO:root:Writing domain facebook.com to file benign.domains
+INFO:root:Writing domain google.com to file benign.domains
+INFO:root:Writing domain youtube.com to file benign.domains
+INFO:root:Writing domain twitter.com to file benign.domains
+INFO:root:Writing domain adobe.com to file benign.domains
+INFO:root:Writing domain wikipedia.org to file benign.domains
+INFO:root:Writing domain microsoft.com to file benign.domains
+INFO:root:Writing domain plus.google.com to file benign.domains
+INFO:root:Writing domain linkedin.com to file benign.domains
+INFO:root:Writing domain apple.com to file benign.domains
+INFO:root:Writing domain maps.google.com to file benign.domains
+INFO:root:Writing domain blogspot.com to file benign.domains
+INFO:root:Writing domain verizon.com to file benign.domains
+INFO:root:Writing domain wordpress.org to file benign.domains
+INFO:root:Writing domain en.wikipedia.org to file benign.domains
+INFO:root:Writing domain yahoo.com to file benign.domains
+INFO:root:Writing domain wordpress.com to file benign.domains
+INFO:root:Writing domain godaddy.com to file benign.domains
+INFO:root:Writing domain vimeo.com to file benign.domains
+INFO:root:Writing domain itunes.apple.com to file benign.domains
+INFO:root:Writing domain youtu.be to file benign.domains
+INFO:root:Writing domain mcc.godaddy.com to file benign.domains
+INFO:root:Writing domain pinterest.com to file benign.domains
+INFO:root:Writing domain amazon.com to file benign.domains
+INFO:root:Writing domain flickr.com to file benign.domains
+INFO:root:Writing domain w3.org to file benign.domains
+INFO:root:Writing domain tumblr.com to file benign.domains
+INFO:root:Writing domain virginmedia.com to file benign.domains
+INFO:root:Writing domain bit.ly to file benign.domains
+INFO:root:Writing domain goo.gl to file benign.domains

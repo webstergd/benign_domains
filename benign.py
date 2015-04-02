@@ -29,8 +29,10 @@
 import argparse
 import configparser
 import csv
-#import requests
 import logging
+import requests
+import sys
+import time
 
 from collections import namedtuple
 
@@ -90,7 +92,6 @@ def check_virustotal(domain, cfg):
     return False
 
 
-
 def main():
     print("Starting up benign_domain parsing script!!!")
 
@@ -104,54 +105,44 @@ def main():
     logging.basicConfig(filename=logfile, level=level)
     print("Writing to log file {0} at level {1}.".format(logfile, level))
 
-
-    ###
-    #Check to see if input file is available
-    ###
     inputFile = cfg['inputFile'].get('majestic', fallback='majestic_million.csv')
     print("Opening input file {0}.".format(inputFile))
-
-    count = 0 
-
-    with open(inputFile) as infile:
-    	f_csv = csv.reader(infile)
-    	headings = next(f_csv)
-    	Row = namedtuple('Row', headings)
-    	for r in f_csv:
-    		if count == 10:
-    			break
-    		row = Row(*r)
-    		
-    		
-
-
-    		print(row.Domain)
-    		count = count + 1
-
-
-
-
-
-
 
     if cfg['benign'].getboolean('outputFile', fallback=True):
         outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
         print("Saving output to file {0}.".format(outputFile))
-        #with open(outputFile, 'wt') as f:
-        #	print("", file=f)
-
-    if cfg['benign'].getboolean('checkVirustotal', fallback=False):
-        print("Checking domains against VirusTotal for validity")
-        if check_virustotal('google.com', cfg):
-            print('awesome')
-        else:
-            print('not so awesome')
 
     if cfg['benign'].getboolean('submitToCrits', fallback=False):
         url = cfg['crits'].get('url', '')
         username = cfg['crits'].get('user', '')
         source = cfg['crits'].get('source', '')
         print("Submitting domains to CRITs at: \n\tURL: {0}\n\tUser: {1}\n\tSource: {2}".format(url, username, source))
+
+    count = 0
+    with open(inputFile) as infile:
+        f_csv = csv.reader(infile)
+        headings = next(f_csv)
+        Row = namedtuple('Row', headings)
+        for r in f_csv:
+            if count == cfg['benign'].get('maxDomains', fallback=100):
+                break
+            row = Row(*r)
+            
+            if cfg['benign'].getboolean('checkVirustotal', fallback=False):
+                if not check_virustotal(row.Domain, cfg):
+                    continue
+
+            if cfg['benign'].getboolean('outputFile', fallback=True):
+                outputFile = cfg['outputFile'].get('filename', fallback='benign.domains')
+                logging.info("Writing domain {0} to file {1}".format(row.Domain, outputFile))
+                with open(outputFile, 'at') as f:
+                   print(row.Domain, file=f)
+
+            if cfg['benign'].getboolean('submitToCrits', fallback=False):
+                submit_crits(row.Domain)
+
+            count = count + 1
+            time.sleep(float(cfg['benign'].get('wait', fallback='1.0')))
 
 
 if __name__ == "__main__":
