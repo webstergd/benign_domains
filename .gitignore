@@ -2,6 +2,9 @@
 *.o
 *.a
 *.so
+# Compiled Python code
+*.py[cod]
+*.so
 
 # Folders
 _obj
