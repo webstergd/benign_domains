@@ -53,7 +53,7 @@ def submit_crits(domain, cfg):
         response = requests.post(url, headers=headers, data=params, verify=False)
         if response.status_code == requests.codes.ok:
             response_json = response.json()
-            logging.info("Submitted domain info for {0} to Crits, response was {1}".format(domain,
+            logging.info("\tSubmitted domain info for {0} to Crits, response was {1}".format(domain,
                          response_json.get('message', '')))
     except:
         logging.info("Exception caught from Crits when submitting domain {0}".format(domain))
@@ -70,7 +70,7 @@ def check_virustotal(domain, api_key):
 
         if response.status_code == requests.codes.ok:
             response_json = response.json()
-            logging.info("Submitted domain {0} to VirusTotal for verification, response was {1}".format(domain,
+            logging.info("\tSubmitted domain {0} to VirusTotal for verification, response was {1}".format(domain,
                          response_json.get('verbose_msg', '')))
             if response_json['response_code'] == 0:
                 logging.info("\tVT: Has not seen {0} before, assuming domain is benign".format(domain))
@@ -149,6 +149,8 @@ def main():
         print("Submitting domains to CRITs at: \n\tURL: {0}\n\tUser: {1}\n\tSource: {2}".format(url, username, source))
 
     # Quick checks before entering the loop
+    if args.start == 0:
+        args.start = 1
     if args.start > args.end:
         print("Starting # must be greater then ending #.\nExiting")
         sys.exit()
