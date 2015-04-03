@@ -129,7 +129,8 @@ def main():
     # Set up logging functionality
     logfile = cfg['logging'].get('filename', fallback='benign.log')
     level = cfg['logging'].get('level', fallback='INFO').upper()
-    logging.basicConfig(filename=logfile, level=level)
+    logformat = '%(asctime)s %(message)s'
+    logging.basicConfig(filename=logfile, level=level, format=logformat)
     print("Writing to log file {0} at level {1}.".format(logfile, level))
 
     inputFile = cfg['inputFile'].get('majestic', fallback='majestic_million.csv')
@@ -162,6 +163,7 @@ def main():
             row = Row(*r)
             
             print("Processing domain: {0} at position: {1}".format(row.Domain, f_csv.line_num - 1))
+            logging.info("Processing domain: {0} at position: {1}".format(row.Domain, f_csv.line_num - 1))
 
             if cfg['benign'].getboolean('checkVirustotal', fallback=False):
                 if not check_virustotal(row.Domain, cfg['virustotal'].get('key')):
