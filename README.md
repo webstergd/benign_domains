@@ -1,2 +1,13 @@
 # benign_domains
-Benign_domains is a simple script that creates a list of benign domains from popular websites. It provides and option to do a best effort validation of domains through tools such as VirusTotal. Additionally, it allows you to save the file to disk and also automatically push domains into CRITs.
+Benign_domains outputs a list of preceived benign domain names. This is
+intended to help gather data for ML training sets and generate white lists.
+The core set of domains are provided by majestic million.
+
+# Options
+    - Validate domains against VirusTotal's datasets (in progress)
+    - Submit domains to a CRITs instance
+    - Output to a file
+
+# Requires
+configparser
+requests

@@ -28,4 +28,3 @@ _testmain.go
 *.csv
 *.domains
 *.log
-*.cfg
