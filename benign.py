@@ -59,10 +59,12 @@ def submit_crits(domain, cfg):
         logging.info("Exception caught from Crits when submitting domain {0}".format(domain))
 
 
-def check_virustotal(domain, api_key):
+def check_virustotal(domain, api_key, threshold):
     """ Checks VirusTotal to see if the domain is malicious """
-    url = 'https://www.virustotal.com/vtapi/v2/domain/report'
-    params = {'domain': domain, 
+    #resource = "{0}domain".format("http://www.", domain)
+
+    url = 'https://www.virustotal.com/vtapi/v2/url/report'
+    params = {'resource': domain, 
               'apikey': api_key,
               'allinfo': 1}
     try:
@@ -79,13 +81,20 @@ def check_virustotal(domain, api_key):
                 logging.debug("\tVT: Reporting that domain {0} is malformed, assuming malicious".format(domain))
                 return False
             elif response_json['response_code'] == 1:
-                # Need to check a few things and then decide if it is really malicious.
-                # probably Alexa domain info, Alexa category, Webutation domain info:Verdict, and maybe categories
-                # For now just return True
-                logging.info("\tVT: Category is: {0}".format(response_json.get('categories', '')))
-                logging.info("\tVT: Webutation verdict is: {0}".format(response_json.get('Webutation domain info', '')))
-                logging.info("\tVT: TrendMicro verdict is: {0}".format(response_json.get('TrendMicro category', '')))
-                return True
+                total = int(response_json.get('total', 0))
+                positive = int(response_json.get('positives', 0))
+
+                additionalinfo = response_json.get('additional_info', '')
+                if additionalinfo:
+                    logging.info("\tVT: Category is: {0}".format(additionalinfo.get('categories', '')))
+                logging.info("\tVT: Positive scans: {0} out of {1} total scans".format(positive, total))
+
+                if positive > int(threshold):
+                    logging.info("\tVT: Threshold exceeded, skipping domain")
+                    return False
+                else:
+                    logging.info("\tVT: Under threshold, domain is benign")
+                    return True
     except:
         logging.debug("Exception caught from VirusTotal when receiving report")
         
@@ -154,6 +163,9 @@ def main():
     if args.start > args.end:
         print("Starting # must be greater then ending #.\nExiting")
         sys.exit()
+    if int(cfg['virustotal'].get('threshold', 0)) < 1:
+        print("Threshold must be greater then 0, setting to 1")
+        cfg['virustotal']['threshold'] = 1
 
     print("\nResults:\n--------------------------------------------------------------")
     with open(inputFile) as infile:
@@ -168,7 +180,7 @@ def main():
             logging.info("Processing domain: {0} at position: {1}".format(row.Domain, f_csv.line_num - 1))
 
             if cfg['benign'].getboolean('checkVirustotal', fallback=False):
-                if not check_virustotal(row.Domain, cfg['virustotal'].get('key')):
+                if not check_virustotal(row.Domain, cfg['virustotal'].get('key'), cfg['virustotal'].get('threshold')):
                     continue
 
             if cfg['benign'].getboolean('outputFile', fallback=True):
